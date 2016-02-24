@@ -1,12 +1,31 @@
-var http = require('http');
-var fs = require('fs');
-var path = require('path');
+var http 		= require('http');
+var fs 			= require('fs');
+var path 		= require('path');
+var Router 		= require('./lib/Router')();
+var Session 	= require('cookie-session');
+var files 		= {};
+var port 		= 9000;
+var host 		= '127.0.0.1';
+var Assets 		= require('./backend/Assets');
+var API 		= require('./backend/API');
+var Default 	= require('./backend/Default');
 
-var files = {};
-var port = 9000;
-var host = '127.0.0.1';
+Router
+.add('static', Assets)
+.add('api', API)
+.add(Default);
 
-var Assets = require('./backend/Assets');
+var checkSession = function(req, res) {
+	session({
+		keys: ['gimble']
+	})(req, res, function() {
+		process(req, res);
+	});
+}
 
-var app = http.createServer(Assets).listen(port, host);
-console.log("Listening on " + host + ":" + port);
+var process = function(req, res) {
+	Router.check(req.url, [req, res]);
+}
+
+var app = http.createServer(checkSession).listen(port, '127.0.0.1');
+console.log("Listening on 127.0.0.1:" + port);

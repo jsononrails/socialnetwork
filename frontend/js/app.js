@@ -22,9 +22,10 @@ var showPage = function(newPage) {
 }
 
 window.onload = function() {
-	
-	// create global user model
 	userModel = new UserModel();
+	userModel.fetch(function(error, result) {
+		// ... router setting
+	});
 	
 	body = document.querySelector('body');
 	
@@ -43,5 +44,21 @@ window.onload = function() {
 	.add('register', function() {
 		var p = new Register();
 		showPage(p);
+	})
+	
+	Router
+	.add('login', function() {
+		var p = new Login();
+		showPage(p);
+	})
+	
+	Router
+	.add('profile', function() {
+		if(userModel.isLogged()) {
+			var p = new Profile();
+			showPage(p);
+		} else {
+			Router.navigate('login');
+		}
 	})
 }
