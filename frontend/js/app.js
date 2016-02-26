@@ -1,12 +1,14 @@
 // frontend/js/app.js
 var Router = require('./lib/Router')();
 
-// routes
-var Home = require('./controllers/Home');
-var Register = require('./controllers/Register');
+// controller references for routes
+var Home 			= require('./controllers/Home');
+var Register 		= require('./controllers/Register');
+var Profile 		= require('./controllers/Profile');
+var FindFriends 	= require('./controllers/FindFriends');
 
 // models
-var UserModel = require('./models/User');
+var UserModel 		= require('./models/User');
 
 var currentPage;
 var body;
@@ -22,43 +24,47 @@ var showPage = function(newPage) {
 }
 
 window.onload = function() {
-	userModel = new UserModel();
-	userModel.fetch(function(error, result) {
-		// ... router setting
-	});
-	
 	body = document.querySelector('body');
 	
-	Router
-	.add('home', function() {
-		var p = new Home();
-		showPage(p);
-	})
-	.add(function() {
-		Router.navigate('home');
-	})
-	.listen()
-	.check();
-	
-	Router
-	.add('register', function() {
-		var p = new Register();
-		showPage(p);
-	})
-	
-	Router
-	.add('login', function() {
-		var p = new Login();
-		showPage(p);
-	})
-	
-	Router
-	.add('profile', function() {
-		if(userModel.isLogged()) {
-			var p = new Profile();
+	// user model for route authentication
+	userModel = new UserModel();
+	userModel.fetch(function(error, result) {
+		
+		// routes
+		Router
+		.add('home', function() {
+			var p = new Home();
 			showPage(p);
-		} else {
-			Router.navigate('login');
-		}
-	})
+		})
+		.add('register', function() {
+			var p = new Register();
+			showPage(p);
+		})
+		.add('login', function() {
+			var p = new Login();
+			showPage(p);
+		})
+		.add('profile', function() {
+			if(userModel.isLogged()) {
+				var p = new Profile();
+				showPage(p);
+			} else {
+				Router.navigate('login');
+			}
+		})
+		.add('find-friends', function() {
+			if(userModel.isLogged()) {
+				var p = new FindFriends();
+				showPage(p);
+			} else {
+				Router.navigate('login');
+			}
+		})
+		.add(function() {
+			Router.navigate('home');
+		})
+		.listen()
+		.check();
+		
+	});
 }
