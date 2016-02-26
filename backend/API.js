@@ -38,15 +38,13 @@ var processPOSTRequest = function(req, callback) {
 
 // validators
 var validEmail = function(value) {
-	var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@(
-	(\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-
-	9]+\.)+[a-zA-Z]{2,}))$/;
-	return re.test(value);
+  var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(value);
 };
 
 
 // router
-var Router = require('../frontent/js/lib/router');
+var Router = require('../frontend/js/lib/router')();
 Router
 .add('api/user/login', function(req, res) {
 	processPOSTRequest(req, function(data) {
@@ -137,7 +135,7 @@ Router
 					collection.insert(data, function(err, docs) {
 						response({
 							success: 'OK'
-						} res);
+						}, res);
 					});
 				});
 			}

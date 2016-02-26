@@ -1,4 +1,8 @@
 //backend/Assets.js
+var fs = require('fs');
+var path = require('path');
+var files = {};
+
 module.exports = function(req, res) {
 	
 	var sendError = function(message, code) {
