@@ -9,6 +9,7 @@ var response = function(result, res) {
 // mongo
 var MongoClient = require('mongodb').MongoClient;
 var database;
+
 var getDatabaseConnection = function(callback) {
 	if(database) {
 		callback(database);
@@ -42,6 +43,18 @@ var validEmail = function(value) {
   return re.test(value);
 };
 
+// helper to get current user profile
+var getCurrentUser = function(callback, req, res) {
+	var collection = db.collection('users');
+	collection.find({
+		email: req.session.user.email
+	}).toArray(function(err, result) {
+		if(result.length === 0)
+			error('No such user', res);
+		else
+			callback(result[0]);
+	});
+};
 
 // router
 var Router = require('../frontend/js/lib/router')();
@@ -145,6 +158,21 @@ Router
 	// .. 
 	break;
 	};
+})
+.add('api/friends/find', function(req, res) {
+	if(req.session && req.session.user) {
+		if(req.method === 'POST') {
+			processPOSTRequest(req, function(data) {
+				getDatabaseConnection(function(db) {
+					getCurrentUser(function(user) {
+						findFriends(db, data.searchFor, user.friends || []);
+					}, req, res);
+				});	
+			});
+		} else 
+			error('This method accepts only POST requests.', res);
+	} else
+		error('You must be logged in to use this method.', res);
 })
 .add('api/version', function(req, res) {
 	response({
