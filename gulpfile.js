@@ -1,7 +1,7 @@
 var path 		= require('path');
 var gulp 		= require('gulp');
 var less 		= require('gulp-less');
-var rename 		= rename('gulp-rename');
+var rename 		= require('gulp-rename');
 var minifyCSS 	= require('gulp-minify-css');
 var browserify	= require('gulp-browserify');
 var uglify 		= require('gulp-uglify');
@@ -13,8 +13,8 @@ gulp.task('js', function() {
 	gulp.src('./js/app.js')
 	.pipe(browserify())
 	.pipe(gulp.dest('./static/js'))
-	.pip(uglify())
-	.pipe.rename({suffix: 'min'})
+	.pipe(uglify())
+	.pipe(rename({suffix: 'min'}))
 	.pipe(gulp.dest('./static/js'));
 });
 
@@ -22,8 +22,8 @@ gulp.task('js', function() {
 gulp.task('css', function() {
 	gulp.src('./less/styles.less')
 	.pipe(less({
-		paths: [path.join(__direname, 'less', 'includes')]
-	}));
+		paths: [path.join(__dirname, 'less', 'includes')]
+	}))
 	.pipe(gulp.dest('./static/css'))
 	.pipe(minifyCSS({keepBreaks:true}))
 	.pipe(rename({suffix: '.min'}))
@@ -33,7 +33,7 @@ gulp.task('css', function() {
 // templating
 gulp.task('templates', function() {
 	gulp.src('./tpl/**/*.html')
-	pipe(tap(function(file, t) {
+	.pipe(tap(function(file, t) {
 		var precompiled = Ractive.parse(file.contents.toString());
 		precompiled = JSON.stringify(precompiled);
 		file.contents = new Buffer('module.exports = ' + precompiled);
