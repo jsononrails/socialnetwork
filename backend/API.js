@@ -1,5 +1,6 @@
 // backend/API.js
 var sha1 = require('sha1');
+var ObjectId = require('mongodb').ObjectId;
 
 var response = function(result, res) {
 	res.writeHead(200, {'Content-Type': 'applicaiton/json'});
@@ -55,6 +56,39 @@ var getCurrentUser = function(callback, req, res) {
 			callback(result[0]);
 	});
 };
+
+var findFriends = function(db, searchFor, currentFriends) {
+	var collection = db.collection('user');
+	var regExp = new RegExp(searchFor, 'gi');
+	var excludeEmails = [req.session.user.email];
+	currentFriends.forEach(function(value, index, arr) {
+		arr[index] = ObjectId(value);
+	});
+	collection.find({
+		$and: [
+			 {
+				$or: [
+					{ firstName: regExp },
+					{ lastName: regExp }
+				]
+			},
+			{ email: { $nin: excludeEmails }},
+			{ _id: { $nin: currentFriends }} 
+		]
+	}).toArray(function(err, result) {
+		var foundFriends = [];
+		for(var i=0; i<result.length; i++) {
+			foundFriends.push({
+				id: result[i]._id,
+				firstName: result[i].firstName,
+				lastName: result[i].lastName
+			});
+		};
+		response({
+			friends: foundFriends
+		}, res);
+	});
+}
 
 // router
 var Router = require('../frontend/js/lib/router')();
@@ -173,6 +207,37 @@ Router
 			error('This method accepts only POST requests.', res);
 	} else
 		error('You must be logged in to use this method.', res);
+})
+.add('api/friends/add', function(req, res) {
+	if(req.session && req.session.user) {
+		if(req.method === 'POST') {
+			var friendId;
+			var updateUserData = function(db, friendId) {
+				var collection = db.collection('users');
+				collection.update(
+					{ email: req.session.user.email },
+					{ $push: { friends: friendId }},
+					done
+				);
+			};
+			var done = function(err, result) {
+				if(err)
+					error('Error updating the data.', res);
+				else
+					response({
+						success: 'OK'
+					}, res);
+			};
+			processPOSTRequest(req, function(data) {
+				getDatabaseConnection(function(db) {
+					updateUserData(db, data.id);
+				});
+			});
+		} else
+		  	error('This method accepts only POST requests.', res);
+	} else
+		error('You must be logged in to use this method.', res);
+	
 })
 .add('api/version', function(req, res) {
 	response({

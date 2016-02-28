@@ -32,5 +32,18 @@ module.exports = Ractive.extend({
 				self.set('loading', false);
 			});
 		});
+		
+		this.on('add', function(e, id) {
+			self.set('loading', true);
+			model.add(id, function(err, res) {
+				self.set('foundFriends', null);
+				if(err) 
+					self.set('message', 'Operation failed.');
+				else if(res.success === 'OK')
+					self.set('message', 'Operation successful.');
+				
+				self.set('loading', false);
+			});
+		});
 	}
 });

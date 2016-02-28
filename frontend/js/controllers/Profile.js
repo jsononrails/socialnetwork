@@ -4,6 +4,9 @@ module.exports = Ractive.extend({
 		navigation: require('../views/Navigation'),
 		appfooter: require('../views/Footer')
 	},
+	data: {
+		friends: []
+	}
 	onrender: function() {
 		var self = this;
 		this.set(userModel.get('value'));
