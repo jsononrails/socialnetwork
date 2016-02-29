@@ -15,7 +15,7 @@ Router
 
 var checkSession = function(req, res) {
   session({
-    keys: ['gimble']
+    keys: ['gimble-lock']
   })(req, res, function() {
     process(req, res);
   });

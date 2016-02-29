@@ -6,14 +6,14 @@ module.exports = Ractive.extend({
 	},
 	data: {
 		friends: []
-	}
+	},
 	onrender: function() {
 		var self = this;
 		this.set(userModel.get('value'));
 		this.on('updateProfile', function() {
 			userModel.set('value.firstName', this.get('firstName'));
 			userModel.set('value.lastName', this.get('lastName'));
-			if(this.get('password' != '') {
+			if(this.get('password') != '') {
 				userModel.set('value.password', this.get('password'));
 			}
 			userModel.save(function(error, result) {

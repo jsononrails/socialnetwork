@@ -7,7 +7,7 @@ module.exports = Base.extend({
 	login: function(callback) {
 		var self = this;
 		ajax.reques({
-			url: this.get('url'), + '/login',
+			url: this.get('url') + '/login',
 			method: 'POST',
 			data: {
 				email: this.get('email'),
