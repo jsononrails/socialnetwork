@@ -8,7 +8,7 @@ module.exports = Ractive.extend({
 		appfooter: require('../views/Footer')
 	},
 	data: {
-		loading: alse,
+		loading: false,
 		message: '',
 		searchFor: '',
 		foundFriends: null

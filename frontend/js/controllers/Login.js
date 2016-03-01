@@ -3,12 +3,12 @@ module.exports = Ractive.extend({
 	template: require('../../tpl/login'),
 	components: {
 		navigation: require('../views/Navigation'),
-		appfooter: rquire('../views/Footer')
+		appfooter: require('../views/Footer')
 	},
 	onrender: function() {
 		var self = this;
-		this.observer('email', userModel.setter('email'));
-		this.observer('password', userModel.setter('password'));
+		this.observe('email', userModel.setter('email'));
+		this.observe('password', userModel.setter('password'));
 		this.on('login', function() {
 			userModel.login(function(error, result) {
 				if(error)

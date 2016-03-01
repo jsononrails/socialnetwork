@@ -6,10 +6,10 @@ module.exports = Ractive.extend({
 	},
 	onrender: function() {
 		var self = this;
-		this.observer('firstName', userModel.setter('value.firstName'));
-		this.observer('lastName', userModel.setter('value.lastName'));
-		this.observer('email', userModel.setter('value.email'));
-		this.observer('password', userModel.setter('value.password'));
+		this.observe('firstName', userModel.setter('value.firstName'));
+		this.observe('lastName', userModel.setter('value.lastName'));
+		this.observe('email', userModel.setter('value.email'));
+		this.observe('password', userModel.setter('value.password'));
 		this.on('register', function() {
 			userModel.create(function(error, result) {
 				if(error) {
