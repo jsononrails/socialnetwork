@@ -1,3 +1,5 @@
+var Friends = require('../models/Friends');
+
 module.exports = Ractive.extend({
 	template: require('../../tpl/profile'),
 	components: {
@@ -8,6 +10,7 @@ module.exports = Ractive.extend({
 		friends: []
 	},
 	onrender: function() {
+		var friends = new Friends();
 		var self = this;
 		this.set(userModel.get('value'));
 		this.on('updateProfile', function() {
@@ -24,6 +27,10 @@ module.exports = Ractive.extend({
 					self.set('success', 'Profile updated successfully.');
 				}
 			});
+		});
+		
+		friends.fetch(function(err, result) {
+			self.set('friends', result.friends); 
 		});
 	}
 });
