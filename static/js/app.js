@@ -1,52 +1,51 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-// frontend/js/controllers/FindFriends.js
 var Friends = require('../models/Friends');
 
 module.exports = Ractive.extend({
-	template: require('../../tpl/find-friends'),
-	components: {
-		navigation: require('../views/Navigation'),
-		appfooter: require('../views/Footer')
-	},
-	data: {
-		loading: false,
-		message: '',
-		searchFor: '',
-		foundFriends: null
-	},
-	onrender: function() {
-		var model = new Friends();
-		var self = this;
-		
-		this.on('find', function(e) {
-			self.set('loading', true);
-			self.set('message', '');
-			var searchFor = this.get('friendName');
-			model.find(searchFor, function(err, res) {
-				
-				if(res.friends && res.friends.length > 0) {
-					self.set('foundFriends', res.friends);
-				} else {
-					self.set('foundFriends', null);
-					self.set('message', 'Sorry, there is no friends matching <strong>' + searchFor + '</strong>');
-				}
-				self.set('loading', false);
-			});
-		});
-		
-		this.on('add', function(e, id) {
-			self.set('loading', true);
-			model.add(id, function(err, res) {
-				self.set('foundFriends', null);
-				if(err) 
-					self.set('message', 'Operation failed.');
-				else if(res.success === 'OK')
-					self.set('message', 'Operation successful.');
-				
-				self.set('loading', false);
-			});
-		});
-	}
+  template: require('../../tpl/find-friends'),
+  components: {
+    navigation: require('../views/Navigation'),
+    appfooter: require('../views/Footer')
+  },
+  data: {
+    loading: false,
+    message: '',
+    searchFor: '',
+    foundFriends: null
+  },
+  onrender: function() {
+
+    var model = new Friends();
+    var self = this;
+
+    this.on('find', function(e) {
+      self.set('loading', true);
+      self.set('message', '');
+      var searchFor = this.get('friendName');
+      model.find(searchFor, function(err, res) {
+        self.set('loading', false);
+        if(res.friends && res.friends.length > 0) {
+          self.set('foundFriends', res.friends);
+        } else {
+          self.set('foundFriends', null);
+          self.set('message', 'Sorry, there is no friends matching <strong>' + searchFor + '<strong>');
+        }
+      });
+    });
+    this.on('add', function(e, id) {
+      this.set('loading', true);
+      model.add(id, function(err, res) {
+        self.set('loading', false);
+        self.set('foundFriends', null);
+        if(err) {
+          self.set('message', 'Operation failed.');
+        } else if(res.success === 'OK') {
+          self.set('message', 'Operation successful.');
+        }
+      });
+    });
+
+  }
 });
 },{"../../tpl/find-friends":15,"../models/Friends":10,"../views/Footer":13,"../views/Navigation":14}],2:[function(require,module,exports){
 module.exports = Ractive.extend({
@@ -88,38 +87,45 @@ module.exports = Ractive.extend({
 var Friends = require('../models/Friends');
 
 module.exports = Ractive.extend({
-	template: require('../../tpl/profile'),
-	components: {
-		navigation: require('../views/Navigation'),
-		appfooter: require('../views/Footer')
-	},
-	data: {
-		friends: []
-	},
-	onrender: function() {
-		var friends = new Friends();
-		var self = this;
-		this.set(userModel.get('value'));
-		this.on('updateProfile', function() {
-			userModel.set('value.firstName', this.get('firstName'));
-			userModel.set('value.lastName', this.get('lastName'));
-			if(this.get('password') != '') {
-				userModel.set('value.password', this.get('password'));
-			}
-			userModel.save(function(error, result) {
-				if(error)
-					self.set('error', error.error);
-				else {
-					self.set('error', false);
-					self.set('success', 'Profile updated successfully.');
-				}
-			});
-		});
-		
-		friends.fetch(function(err, result) {
-			self.set('friends', result.friends); 
-		});
-	}
+  template: require('../../tpl/profile'),
+  components: {
+    navigation: require('../views/Navigation'),
+    appfooter: require('../views/Footer')
+  },
+  data: {
+    friends: []
+  },
+  onrender: function() {
+    var self = this;
+    this.set(userModel.get('value'));
+    this.on('updateProfile', function() {
+      userModel.set('value.firstName', this.get('firstName'));
+      userModel.set('value.lastName', this.get('lastName'));
+      if(this.get('password') != '') {
+        userModel.set('value.password', this.get('password'));
+      }
+      userModel.save(function(error, result) {
+        if(error) {
+          self.set('error', error.error);
+        } else {
+          self.set('error', false);
+          self.set('success', 'Profile updated successfully.');
+        }
+      });
+    });
+    this.on('deleteProfile', function() {
+      if(confirm('Are you sure! Your account will be deleted permanently.')) {
+        userModel.del(function() {
+          window.location.href = '/';
+        });
+      }
+    });
+
+    var friends = new Friends();
+    friends.fetch(function(err, result) {
+      self.set('friends', result.friends);
+    });
+  }
 });
 },{"../../tpl/profile":20,"../models/Friends":10,"../views/Footer":13,"../views/Navigation":14}],5:[function(require,module,exports){
 module.exports = Ractive.extend({

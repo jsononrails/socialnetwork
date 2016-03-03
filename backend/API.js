@@ -188,8 +188,8 @@ Router
         var regExp = new RegExp(searchFor, 'gi');
         var excludeEmails = [req.session.user.email];
         currentFriends.forEach(function(value, index, arr) {
-          arr[index] = ObjectId(value);
-        });
+      		arr[index] = ObjectId(value);
+    	});
         collection.find({
           $and: [
             {
