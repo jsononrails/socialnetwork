@@ -1,7 +1,9 @@
 <header>
 	<navigation />
 	<div class="hero">
-		<h1>Social Network</h1>
+		{{#if posting === true}}
+		  <form enctype="multipart/form-data" method="post">
+			<h3>What is on your mind?</h3>
 	</div>
 </header>
 <appfooter />
