@@ -50,6 +50,13 @@ var getCurrentUser = function(callback, req, res) {
       if(result.length === 0) {
         error('No such user', res);
       } else {
+		var curUser = result[0];
+		if(curUser.friends != null && curUser.friends.constructor === String) {
+			var tmpFriends = [];
+			tmpFriends.push(curUser.friends);
+			curUser.friends = tmpFriends;
+			result[0] = curUser;
+		}
         callback(result[0]);
       }
     });
@@ -291,6 +298,68 @@ Router
   } else {
     error('You must be logged in to use this method.', res);
   }
+})
+.add('api/content', function(req, res) {
+	var user;
+	
+  if(req.session && req.session.user) {
+		user = req.session.user;
+	} else {
+		error('You must be logged in in order to use this method', res);
+		return;
+	}
+	switch(req.method) {
+		case 'GET': 
+		  getCurrentUser(function(user) {
+			if(!user.friends) {
+				user.friends = [];
+			}
+			getDatabaseConnection(function(db) {
+				var collection = db.collection('content');
+				collection.find({
+					$query: {
+						userId: { $in: [user._id.toString()].concat(user.friends) }
+					},
+					$orderby: {
+						date: -1
+					}
+				}).toArray(function(err, result) {
+					result.forEach(function(value, index, arr) {
+						arr[index].id = ObjectId(value.id);
+						delete arr[index].userId;
+					});
+					response({
+						posts: result
+					}, res);
+				});
+			});
+		  }, req, res);
+		break;
+		case 'POST':
+		  processPOSTRequest(req, function(data) {
+			if(!data.text || data.text === '') {
+				error('Please add some text.', res);
+			}
+			else 
+			{
+				getDatabaseConnection(function(db) {
+					
+					getCurrentUser(function(user) {
+						var collection = db.collection('content');
+						data.userId = user._id.toString();
+						data.userName = user.firstName + ' ' + user.lastName;
+						data.date = new Date();
+						collection.insert(data, function(err, docs) {
+							response({
+								success: 'OK'
+							}, res);
+						});
+					}, req, res);
+				});
+			}
+		});
+		break;
+	}
 })
 .add(function(req, res) {
   response({

@@ -47,18 +47,53 @@ module.exports = Ractive.extend({
 
   }
 });
-},{"../../tpl/find-friends":15,"../models/Friends":10,"../views/Footer":13,"../views/Navigation":14}],2:[function(require,module,exports){
+},{"../../tpl/find-friends":16,"../models/Friends":11,"../views/Footer":14,"../views/Navigation":15}],2:[function(require,module,exports){
 module.exports = Ractive.extend({
   template: require('../../tpl/home'),
   components: {
     navigation: require('../views/Navigation'),
     appfooter: require('../views/Footer')
   },
+  data: {
+	posting: true
+  },
   onrender: function() {
-    
+    if(userModel.isLogged()) {
+		var ContentModel = require('../models/Content');
+		var model = new ContentModel();
+		var self = this;
+		
+		this.on('post', function() {
+			model.create({
+				text: this.get('text')
+			}, function(error, result) {
+				self.set('text', '');
+				if(error) 
+					self.set('error', error.error);
+				else {
+					self.set('error', false);
+					self.set('success', 'The post is is saved successfully. <br /> What about another one?');				
+					getPosts();
+				}
+			});
+		});
+		
+		var getPosts = function() {
+			model.fetch(function(err, result) {
+				if(!err) {
+					self.set('posts', result.posts);
+				}
+			});
+		};
+		
+		getPosts();
+	
+	} else {
+		this.set('posting', false);
+	}
   }
 });
-},{"../../tpl/home":17,"../views/Footer":13,"../views/Navigation":14}],3:[function(require,module,exports){
+},{"../../tpl/home":18,"../models/Content":10,"../views/Footer":14,"../views/Navigation":15}],3:[function(require,module,exports){
 // frontend/js/controllers/Login.js
 module.exports = Ractive.extend({
 	template: require('../../tpl/login'),
@@ -83,7 +118,7 @@ module.exports = Ractive.extend({
 		});
 	}
 });
-},{"../../tpl/login":18,"../views/Footer":13,"../views/Navigation":14}],4:[function(require,module,exports){
+},{"../../tpl/login":19,"../views/Footer":14,"../views/Navigation":15}],4:[function(require,module,exports){
 var Friends = require('../models/Friends');
 
 module.exports = Ractive.extend({
@@ -123,12 +158,11 @@ module.exports = Ractive.extend({
 
     var friends = new Friends();
     friends.fetch(function(err, result) {
-		console.log(result);
       self.set('friends', result.friends);
     });
   }
 });
-},{"../../tpl/profile":20,"../models/Friends":10,"../views/Footer":13,"../views/Navigation":14}],5:[function(require,module,exports){
+},{"../../tpl/profile":21,"../models/Friends":11,"../views/Footer":14,"../views/Navigation":15}],5:[function(require,module,exports){
 module.exports = Ractive.extend({
 	template: require('../../tpl/register'),
 	components: {
@@ -153,7 +187,7 @@ module.exports = Ractive.extend({
 		});
 	}
 });
-},{"../../tpl/register":21,"../views/Footer":13,"../views/Navigation":14}],6:[function(require,module,exports){
+},{"../../tpl/register":22,"../views/Footer":14,"../views/Navigation":15}],6:[function(require,module,exports){
 var Router = require('./lib/Router')();
 var Home = require('./controllers/Home');
 var Register = require('./controllers/Register');
@@ -221,7 +255,7 @@ window.onload = function() {
   });
 
 }
-},{"./controllers/FindFriends":1,"./controllers/Home":2,"./controllers/Login":3,"./controllers/Profile":4,"./controllers/Register":5,"./lib/Router":8,"./models/User":11}],7:[function(require,module,exports){
+},{"./controllers/FindFriends":1,"./controllers/Home":2,"./controllers/Login":3,"./controllers/Profile":4,"./controllers/Register":5,"./lib/Router":8,"./models/User":12}],7:[function(require,module,exports){
 module.exports = {
   request: function(ops) {
     if(typeof ops == 'string') ops = { url: ops };
@@ -471,6 +505,32 @@ var Base = require('./Base');
 
 module.exports = Base.extend({
 	data: {
+		url: '/api/content'
+	},
+	create: function(content, callback) {
+		var self = this;
+		ajax.request({
+			url: this.get('url'),
+			method: 'POST',
+			data: {
+				text: content.text
+			},
+			json: true
+		})
+		.done(function(result) {
+			callback(null, result);
+		})
+		.fail(function(xhr) {
+			callback(JSON.parse(xhr.responseText));
+		});
+	}
+});
+},{"../lib/Ajax":7,"./Base":9}],11:[function(require,module,exports){
+var ajax = require('../lib/Ajax');
+var Base = require('./Base');
+
+module.exports = Base.extend({
+	data: {
 		url: '/api/friends'
 	},
 	find: function(searchFor, callback) {
@@ -506,7 +566,7 @@ module.exports = Base.extend({
 		});
 	}
 });
-},{"../lib/Ajax":7,"./Base":9}],11:[function(require,module,exports){
+},{"../lib/Ajax":7,"./Base":9}],12:[function(require,module,exports){
 var ajax = require('../lib/Ajax');
 var Base = require('./Base');
 module.exports = Base.extend({
@@ -548,14 +608,14 @@ module.exports = Base.extend({
     return this.get('value.firstName') && this.get('value.lastName');
   }
 });
-},{"../lib/Ajax":7,"./Base":9}],12:[function(require,module,exports){
+},{"../lib/Ajax":7,"./Base":9}],13:[function(require,module,exports){
 var Base = require('./Base');
 module.exports = Base.extend({
   data: {
     url: '/api/version'
   }
 });
-},{"./Base":9}],13:[function(require,module,exports){
+},{"./Base":9}],14:[function(require,module,exports){
 // views/footer.js
 var FooterModel = require('../models/Version');
 
@@ -566,7 +626,7 @@ module.exports = Ractive.extend({
 		model.bindComponent(this).fetch();
 	}
 });
-},{"../../tpl/footer":16,"../models/Version":12}],14:[function(require,module,exports){
+},{"../../tpl/footer":17,"../models/Version":13}],15:[function(require,module,exports){
 // views/navigation.js
 module.exports = Ractive.extend({
 	template: require('../../tpl/navigation'),
@@ -574,18 +634,18 @@ module.exports = Ractive.extend({
 		this.data.isLogged = userModel.isLogged();
 	}
 });
-},{"../../tpl/navigation":19}],15:[function(require,module,exports){
+},{"../../tpl/navigation":20}],16:[function(require,module,exports){
 module.exports = {"v":1,"t":[{"t":7,"e":"header","f":[{"t":7,"e":"navigation"}]}," ",{"t":7,"e":"div","a":{"class":"hero"},"f":[{"t":7,"e":"h1","f":["Find friends"]}]}," ",{"t":7,"e":"form","a":{"onsubmit":"return false;"},"f":[{"t":4,"n":50,"r":"loading","f":[{"t":7,"e":"p","f":["Loading. Please wait."]}]},{"t":4,"n":51,"f":[{"t":7,"e":"label","a":{"for":"friend-name"},"f":["Please, type the name of your friend:"]}," ",{"t":7,"e":"input","a":{"type":"text","id":"friend-name","value":[{"t":2,"r":"friendName"}]}}," ",{"t":7,"e":"input","a":{"type":"button","value":"Find"},"v":{"click":"find"}}],"r":"loading"}]}," ",{"t":4,"n":50,"x":{"r":["foundFriends"],"s":"_0!==null"},"f":[{"t":7,"e":"div","a":{"class":"friends-list"},"f":[{"t":4,"n":52,"r":"foundFriends","f":[{"t":7,"e":"div","a":{"class":"friend-list-item"},"f":[{"t":7,"e":"h2","f":[{"t":2,"r":"firstName"}," ",{"t":2,"r":"lastName"}]}," ",{"t":7,"e":"input","a":{"type":"button","value":"Add as a friend"},"v":{"click":{"n":"add","d":[{"t":2,"r":"id"}]}}}]}]}]}]},{"t":4,"n":50,"x":{"r":["message"],"s":"_0!==\"\""},"f":[{"t":7,"e":"div","a":{"class":"friends-list"},"f":[{"t":7,"e":"p","f":[{"t":3,"r":"message"}]}]}]},{"t":7,"e":"appfooter"}]}
-},{}],16:[function(require,module,exports){
-module.exports = {"v":1,"t":[{"t":7,"e":"footer","f":["Version: ",{"t":2,"r":"version"}]}]}
 },{}],17:[function(require,module,exports){
-module.exports = {"v":1,"t":[{"t":7,"e":"header","f":[{"t":7,"e":"navigation"}," ",{"t":7,"e":"div","a":{"class":"hero"},"f":[]}]}," ",{"t":7,"e":"appfooter"}]}
+module.exports = {"v":1,"t":[{"t":7,"e":"footer","f":["Version: ",{"t":2,"r":"version"}]}]}
 },{}],18:[function(require,module,exports){
-
+module.exports = {"v":1,"t":[{"t":7,"e":"header","f":[{"t":7,"e":"navigation"}," ",{"t":7,"e":"div","a":{"class":"hero"},"f":[{"t":4,"n":50,"x":{"r":["posting"],"s":"_0===true"},"f":[{"t":7,"e":"form","a":{"enctype":"multipart/form-data","method":"post"},"f":[{"t":7,"e":"h3","f":["What is on your mind?"]}," ",{"t":4,"n":50,"x":{"r":["error"],"s":"_0&&_0!=\"\""},"f":[{"t":7,"e":"div","a":{"class":"error"},"f":[{"t":3,"r":"error"}]}]}," ",{"t":4,"n":50,"x":{"r":["success"],"s":"_0&&_0!=\"\""},"f":[{"t":7,"e":"div","a":{"class":"success"},"f":[{"t":3,"r":"success"}]}]}," ",{"t":7,"e":"label","a":{"for":"text"},"f":["Text"]}," ",{"t":7,"e":"textarea","a":{"value":[{"t":2,"r":"text"}]}}," ",{"t":7,"e":"input","a":{"type":"file","name":"file"}}," ",{"t":7,"e":"input","a":{"type":"button","value":"Post"},"v":{"click":"post"}}]}," ",{"t":4,"n":52,"r":"posts","i":"index","f":[{"t":7,"e":"div","a":{"class":"content-item"},"f":[{"t":7,"e":"h2","f":[{"t":2,"rx":{"r":"posts","m":[{"t":30,"n":"index"},"userName"]}}]}," ",{"t":2,"rx":{"r":"posts","m":[{"t":30,"n":"index"},"text"]}}]}]}]},{"t":4,"n":51,"f":[{"t":7,"e":"h1","f":["Gimble"]}],"x":{"r":["posting"],"s":"_0===true"}}]}]}," ",{"t":7,"e":"appfooter"}]}
 },{}],19:[function(require,module,exports){
-module.exports = {"v":1,"t":[{"t":7,"e":"nav","f":[{"t":7,"e":"ul","f":[{"t":7,"e":"li","f":[{"t":7,"e":"a","v":{"click":{"n":"goto","a":"home"}},"f":["Home"]}]}," ",{"t":4,"n":50,"x":{"r":["isLogged"],"s":"!_0"},"f":[{"t":7,"e":"li","f":[{"t":7,"e":"a","v":{"click":{"n":"goto","a":"register"}},"f":["Register"]}]}," ",{"t":7,"e":"li","f":[{"t":7,"e":"a","v":{"click":{"n":"goto","a":"login"}},"f":["Login"]}]}]},{"t":4,"n":51,"f":[{"t":7,"e":"li","a":{"class":"right"},"f":[{"t":7,"e":"a","v":{"click":{"n":"goto","a":"logout"}},"f":["Logout"]}]}," ",{"t":7,"e":"li","a":{"class":"right"},"f":[{"t":7,"e":"a","v":{"click":{"n":"goto","a":"profile"}},"f":["Profile"]}]}," ",{"t":7,"e":"li","a":{"class":"right"},"f":[{"t":7,"e":"a","v":{"click":{"n":"goto","a":"find-friends"}},"f":["Find Friends"]}]}],"x":{"r":["isLogged"],"s":"!_0"}}]}]}]}
+module.exports = {"v":1,"t":[{"t":7,"e":"header","f":[{"t":7,"e":"navigation"}]}," ",{"t":7,"e":"div","a":{"class":"hero"},"f":[{"t":7,"e":"h1","f":["Login"]}]}," ",{"t":7,"e":"form","f":[{"t":4,"n":50,"x":{"r":["error"],"s":"_0&&_0!=\"\""},"f":[{"t":7,"e":"div","a":{"class":"error"},"f":[{"t":2,"r":"error"}]}]}," ",{"t":4,"n":50,"x":{"r":["success"],"s":"_0&&_0!=\"\""},"f":[{"t":7,"e":"div","a":{"class":"success"},"f":[{"t":3,"r":"success"}]}]},{"t":4,"n":51,"f":[{"t":7,"e":"label","a":{"for":"email"},"f":["Email"]}," ",{"t":7,"e":"input","a":{"type":"text","id":"email","value":[{"t":2,"r":"email"}]}}," ",{"t":7,"e":"label","a":{"for":"password"},"f":["Password"]}," ",{"t":7,"e":"input","a":{"type":"password","id":"password","value":[{"t":2,"r":"password"}]}}," ",{"t":7,"e":"input","a":{"type":"button","value":"login"},"v":{"click":"login"}}],"x":{"r":["success"],"s":"_0&&_0!=\"\""}}]}," ",{"t":7,"e":"appfooter"}]}
 },{}],20:[function(require,module,exports){
-module.exports = {"v":1,"t":[{"t":7,"e":"header","f":[{"t":7,"e":"navigation"}]}," ",{"t":7,"e":"div","a":{"class":"hero"},"f":[{"t":7,"e":"h1","f":["Profile"]}]}," ",{"t":7,"e":"form","f":[{"t":4,"n":50,"x":{"r":["error"],"s":"_0&&_0!=\"\""},"f":[{"t":7,"e":"div","a":{"class":"error"},"f":[{"t":3,"r":"error"}]}]}," ",{"t":4,"n":50,"x":{"r":["success"],"s":"_0&&_0!=\"\""},"f":[{"t":7,"e":"div","a":{"class":"success"},"f":[{"t":3,"r":"success"}]}]}," ",{"t":7,"e":"label","a":{"for":"first-name"},"f":["First name"]}," ",{"t":7,"e":"input","a":{"type":"text","id":"first-name","value":[{"t":2,"r":"firstName"}]}}," ",{"t":7,"e":"label","a":{"for":"last-name"},"f":["Last name"]}," ",{"t":7,"e":"input","a":{"type":"text","id":"last-name","value":[{"t":2,"r":"lastName"}]}}," ",{"t":7,"e":"label","a":{"for":"password"},"f":["Change password"]}," ",{"t":7,"e":"input","a":{"type":"password","id":"password","value":[{"t":2,"r":"password"}]}}," ",{"t":7,"e":"input","a":{"type":"button","value":"update"},"v":{"click":"updateProfile"}}," ",{"t":7,"e":"input","a":{"type":"button","value":"delete account","class":"right attention"},"v":{"click":"deleteProfile"}}]}," ",{"t":4,"n":50,"x":{"r":["friends.length"],"s":"_0>0"},"f":[{"t":7,"e":"div","a":{"class":"hero"},"f":[{"t":7,"e":"h1","f":["Friends"]}]}," ",{"t":7,"e":"div","a":{"class":"friends-list"},"f":[{"t":4,"n":52,"r":"friends","i":"index","f":[{"t":7,"e":"div","a":{"class":"friend-list-item"},"f":[{"t":7,"e":"h2","f":[{"t":2,"rx":{"r":"friends","m":[{"t":30,"n":"index"},"firstName"]}}," ",{"t":2,"rx":{"r":"friends","m":[{"t":30,"n":"index"},"lastName"]}}]}]}]}]}]},{"t":7,"e":"appfooter"}]}
+module.exports = {"v":1,"t":[{"t":7,"e":"nav","f":[{"t":7,"e":"ul","f":[{"t":7,"e":"li","f":[{"t":7,"e":"a","v":{"click":{"n":"goto","a":"home"}},"f":["Home"]}]}," ",{"t":4,"n":50,"x":{"r":["isLogged"],"s":"!_0"},"f":[{"t":7,"e":"li","f":[{"t":7,"e":"a","v":{"click":{"n":"goto","a":"register"}},"f":["Register"]}]}," ",{"t":7,"e":"li","f":[{"t":7,"e":"a","v":{"click":{"n":"goto","a":"login"}},"f":["Login"]}]}]},{"t":4,"n":51,"f":[{"t":7,"e":"li","a":{"class":"right"},"f":[{"t":7,"e":"a","v":{"click":{"n":"goto","a":"logout"}},"f":["Logout"]}]}," ",{"t":7,"e":"li","a":{"class":"right"},"f":[{"t":7,"e":"a","v":{"click":{"n":"goto","a":"profile"}},"f":["Profile"]}]}," ",{"t":7,"e":"li","a":{"class":"right"},"f":[{"t":7,"e":"a","v":{"click":{"n":"goto","a":"find-friends"}},"f":["Find Friends"]}]}],"x":{"r":["isLogged"],"s":"!_0"}}]}]}]}
 },{}],21:[function(require,module,exports){
+module.exports = {"v":1,"t":[{"t":7,"e":"header","f":[{"t":7,"e":"navigation"}]}," ",{"t":7,"e":"div","a":{"class":"hero"},"f":[{"t":7,"e":"h1","f":["Profile"]}]}," ",{"t":7,"e":"form","f":[{"t":4,"n":50,"x":{"r":["error"],"s":"_0&&_0!=\"\""},"f":[{"t":7,"e":"div","a":{"class":"error"},"f":[{"t":3,"r":"error"}]}]}," ",{"t":4,"n":50,"x":{"r":["success"],"s":"_0&&_0!=\"\""},"f":[{"t":7,"e":"div","a":{"class":"success"},"f":[{"t":3,"r":"success"}]}]}," ",{"t":7,"e":"label","a":{"for":"first-name"},"f":["First name"]}," ",{"t":7,"e":"input","a":{"type":"text","id":"first-name","value":[{"t":2,"r":"firstName"}]}}," ",{"t":7,"e":"label","a":{"for":"last-name"},"f":["Last name"]}," ",{"t":7,"e":"input","a":{"type":"text","id":"last-name","value":[{"t":2,"r":"lastName"}]}}," ",{"t":7,"e":"label","a":{"for":"password"},"f":["Change password"]}," ",{"t":7,"e":"input","a":{"type":"password","id":"password","value":[{"t":2,"r":"password"}]}}," ",{"t":7,"e":"input","a":{"type":"button","value":"update"},"v":{"click":"updateProfile"}}," ",{"t":7,"e":"input","a":{"type":"button","value":"delete account","class":"right attention"},"v":{"click":"deleteProfile"}}]}," ",{"t":4,"n":50,"x":{"r":["friends.length"],"s":"_0>0"},"f":[{"t":7,"e":"div","a":{"class":"hero"},"f":[{"t":7,"e":"h1","f":["Friends"]}]}," ",{"t":7,"e":"div","a":{"class":"friends-list"},"f":[{"t":4,"n":50,"x":{"r":["friends.length"],"s":"_0==1"},"f":[{"t":7,"e":"div","a":{"class":"friend-list-item"},"f":[{"t":7,"e":"h2","f":[{"t":2,"r":"friends.0.firstName"}," ",{"t":2,"r":"friends.0.lastName"}]}]}]},{"t":4,"n":51,"f":[{"t":4,"n":52,"r":"friends","i":"index","f":[{"t":7,"e":"div","a":{"class":"friend-list-item"},"f":[{"t":7,"e":"h2","f":[{"t":2,"rx":{"r":"friends","m":[{"t":30,"n":"index"},"firstName"]}}," ",{"t":2,"rx":{"r":"friends","m":[{"t":30,"n":"index"},"lastName"]}}]}]}]}],"x":{"r":["friends.length"],"s":"_0==1"}}]}]},{"t":7,"e":"appfooter"}]}
+},{}],22:[function(require,module,exports){
 module.exports = {"v":1,"t":[{"t":7,"e":"header","f":[{"t":7,"e":"navigation"}]}," ",{"t":7,"e":"div","a":{"class":"hero"},"f":[{"t":7,"e":"h1","f":["Register"]}]}," ",{"t":7,"e":"form","f":[{"t":4,"n":50,"x":{"r":["error"],"s":"_0&&_0!=\"\""},"f":[{"t":7,"e":"div","a":{"class":"error"},"f":[{"t":2,"r":"error"}]}]}," ",{"t":4,"n":50,"x":{"r":["success"],"s":"_0&&_0!=\"\""},"f":[{"t":7,"e":"div","a":{"class":"success"},"f":[{"t":3,"r":"success"}]}]},{"t":4,"n":51,"f":[{"t":7,"e":"label","a":{"for":"first-name"},"f":["First name"]}," ",{"t":7,"e":"input","a":{"type":"text","id":"first-name","value":[{"t":2,"r":"firstName"}]}}," ",{"t":7,"e":"label","a":{"for":"last-name"},"f":["Last name"]}," ",{"t":7,"e":"input","a":{"type":"text","id":"last-name","value":[{"t":2,"r":"lastName"}]}}," ",{"t":7,"e":"label","a":{"for":"email"},"f":["Email"]}," ",{"t":7,"e":"input","a":{"type":"text","id":"email","value":[{"t":2,"r":"email"}]}}," ",{"t":7,"e":"label","a":{"for":"password"},"f":["Password"]}," ",{"t":7,"e":"input","a":{"type":"password","id":"password","value":[{"t":2,"r":"password"}]}}," ",{"t":7,"e":"input","a":{"type":"button","value":"register"},"v":{"click":"register"}}],"x":{"r":["success"],"s":"_0&&_0!=\"\""}}]}," ",{"t":7,"e":"appfooter"}]}
 },{}]},{},[6])

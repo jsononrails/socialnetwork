@@ -37,7 +37,6 @@ module.exports = Ractive.extend({
 
     var friends = new Friends();
     friends.fetch(function(err, result) {
-		console.log(result);
       self.set('friends', result.friends);
     });
   }
