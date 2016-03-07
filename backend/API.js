@@ -1,5 +1,6 @@
 var sha1 = require('sha1');
 var ObjectId = require('mongodb').ObjectID;
+var fs = require('fs');
 
 var response = function(result, res) {
   res.writeHead(200, {'Content-Type': 'application/json'});
@@ -31,7 +32,7 @@ var querystring = require('querystring');
 var processPOSTRequest = function(req, callback) {
   var body = '';
   req.on('data', function (data) {
-    body += data;
+    body += data.toString();
   });
   req.on('end', function () {
     callback(querystring.parse(body));
@@ -50,13 +51,6 @@ var getCurrentUser = function(callback, req, res) {
       if(result.length === 0) {
         error('No such user', res);
       } else {
-		var curUser = result[0];
-		if(curUser.friends != null && curUser.friends.constructor === String) {
-			var tmpFriends = [];
-			tmpFriends.push(curUser.friends);
-			curUser.friends = tmpFriends;
-			result[0] = curUser;
-		}
         callback(result[0]);
       }
     });
@@ -195,8 +189,8 @@ Router
         var regExp = new RegExp(searchFor, 'gi');
         var excludeEmails = [req.session.user.email];
         currentFriends.forEach(function(value, index, arr) {
-      		arr[index] = ObjectId(value);
-    	});
+          arr[index] = ObjectId(value);
+        });
         collection.find({
           $and: [
             {
@@ -300,66 +294,84 @@ Router
   }
 })
 .add('api/content', function(req, res) {
-	var user;
-	
+  var user;
   if(req.session && req.session.user) {
-		user = req.session.user;
-	} else {
-		error('You must be logged in in order to use this method', res);
-		return;
-	}
-	switch(req.method) {
-		case 'GET': 
-		  getCurrentUser(function(user) {
-			if(!user.friends) {
-				user.friends = [];
-			}
-			getDatabaseConnection(function(db) {
-				var collection = db.collection('content');
-				collection.find({
-					$query: {
-						userId: { $in: [user._id.toString()].concat(user.friends) }
-					},
-					$orderby: {
-						date: -1
-					}
-				}).toArray(function(err, result) {
-					result.forEach(function(value, index, arr) {
-						arr[index].id = ObjectId(value.id);
-						delete arr[index].userId;
-					});
-					response({
-						posts: result
-					}, res);
-				});
-			});
-		  }, req, res);
-		break;
-		case 'POST':
-		  processPOSTRequest(req, function(data) {
-			if(!data.text || data.text === '') {
-				error('Please add some text.', res);
-			}
-			else 
-			{
-				getDatabaseConnection(function(db) {
-					
-					getCurrentUser(function(user) {
-						var collection = db.collection('content');
-						data.userId = user._id.toString();
-						data.userName = user.firstName + ' ' + user.lastName;
-						data.date = new Date();
-						collection.insert(data, function(err, docs) {
-							response({
-								success: 'OK'
-							}, res);
-						});
-					}, req, res);
-				});
-			}
-		});
-		break;
-	}
+    user = req.session.user;
+  } else {
+    error('You must be logged in in order to use this method.', res);
+    return;
+  }
+  switch(req.method) {
+    case 'GET':
+      getCurrentUser(function(user) {
+        if(!user.friends) {
+          user.friends = [];
+        }
+        getDatabaseConnection(function(db) {
+          var collection = db.collection('content');
+          collection.find({ 
+            $query: {
+              userId: { $in: [user._id.toString()].concat(user.friends) }
+            },
+            $orderby: {
+              date: -1
+            }
+          }).toArray(function(err, result) {
+            result.forEach(function(value, index, arr) {
+              arr[index].id = ObjectId(value.id);
+              delete arr[index].userId;
+            });
+            response({
+              posts: result
+            }, res);
+          });
+        });
+      }, req, res);
+    break;
+    case 'POST':
+      var uploadDir = __dirname + '/../static/uploads/';
+      var formidable = require('formidable');
+      var form = new formidable.IncomingForm();
+      form.multiples = true;
+      form.parse(req, function(err, data, files) {
+        if(!data.text || data.text === '') {
+          error('Please add some text.', res);
+        } else {
+          var processFiles = function(userId, callback) {
+            if(files.files) {
+              var fileName = userId + '_' + files.files.name;
+              var filePath = uploadDir + fileName;
+              fs.rename(files.files.path, filePath, function(err) {
+                if(err) throw err;
+                callback(fileName);
+              });
+            } else {
+              callback();
+            }
+          };
+          var done = function() {
+            response({
+              success: 'OK'
+            }, res);
+          }
+          getDatabaseConnection(function(db) {
+            getCurrentUser(function(user) {
+              var collection = db.collection('content');
+              data.userId = user._id.toString();
+              data.userName = user.firstName + ' ' + user.lastName;
+              data.date = new Date();
+              processFiles(user._id, function(file) {
+                if(file) {
+                  data.file = file;
+                }
+                collection.insert(data, done);
+              });
+            }, req, res);
+          });
+        }
+      });
+    break;
+  };
 })
 .add(function(req, res) {
   response({
