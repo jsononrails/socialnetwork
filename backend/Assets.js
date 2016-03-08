@@ -23,7 +23,7 @@ module.exports = function(req, res) {
       default: contentType = "text/plain";
     }
     res.writeHead(200, {'Content-Type': contentType});
-    res.end(file.content + '\n');
+    res.end(file.content);
   }
 
   var readFile = function(filePath) {
