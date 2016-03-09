@@ -8,8 +8,7 @@ Router
 .add('api/friends/add', require('./api/friends-add'))
 .add('api/friends', require('./api/friends'))
 .add('api/content', require('./api/content'))
-.add('api/pages/:id', require('./api/pages'))
-.add('api/pages/', require('./api/pages'))
+.add('api/pages', require('./api/pages'))
 .add(require('./api/default'));
 module.exports = function(req, res) {
   Router.check(req.url, [req, res]);
