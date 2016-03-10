@@ -1,6 +1,13 @@
 <header>
 	<navigation></navigation>
 </header>
+{{#if pageId}}
+<div class="hero">
+	<h1>{{pageTitle}}</h1>
+	<p>{{pageDescription}}</p>
+</div>
+<hr />
+{{else}}
 <div class="hero">
 	<form enctype="multipart/form-data" method="post">
 		<h3>Add a new page</h3>
@@ -25,4 +32,5 @@
 	<p><a href="/pages/{{pages[index].id}}" class="button">Visit the page</a></p>
 </div>
 {{/each}}
+{{/if}}
 <appfooter/>

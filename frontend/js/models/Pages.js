@@ -4,6 +4,20 @@ module.exports = Base.extend({
   data: {
     url: '/api/pages'
   },
+  getPage: function(pageId, callback) {
+    var self = this;
+	ajax.request({
+		url: this.get('url') + '/' + pageId,
+		method: 'GET',
+		json: true
+	})
+	.done(function(result) {
+		callback(null, result);
+	})
+	.fail(function(xhr) {
+		callback(JSON.parse(xhr.responseText));
+	});
+  },
   create: function(formData, callback) {
     var self = this;
     ajax.request({

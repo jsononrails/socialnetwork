@@ -5,7 +5,7 @@ var error = helpers.error;
 var getDatabaseConnection = helpers.getDatabaseConnection;
 var getCurrentUser = helpers.getCurrentUser;
 
-module.exports = function(req, res) {
+module.exports = function(req, res, params) {
   var user;
   if(req.session && req.session.user) {
     user = req.session.user;
@@ -13,13 +13,22 @@ module.exports = function(req, res) {
     error('You must be logged in in order to use this method.', res);
     return;
   }
-  console.log(req.method);
   switch(req.method) {
     case 'GET': 
 	  getDatabaseConnection(function(db) {
+		
+		var query;
+		
+		if(params && params.id) {
+			query = { _id: ObjectId(params.id) };
+		} else {
+			query = {};
+		}
+		
 	  	var collection = db.collection('pages');
+		
 		collection.find({
-			$query: {},
+			$query: query,
 			$orderby: {
 				date: -1
 			}
