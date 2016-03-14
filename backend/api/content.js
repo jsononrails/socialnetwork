@@ -47,7 +47,16 @@ module.exports = function(req, res) {
       var formidable = require('formidable');
       var form = new formidable.IncomingForm();
       form.multiples = true;
-      form.parse(req, function(err, data, files) {
+      form.parse(req, function(err, formData, files) {
+		
+		var data = {
+			text: formData.text
+		};
+		
+		if(formData.pageId) {
+			data.pageId = formData.pageId;
+		}
+		
         if(!data.text || data.text === '') {
           error('Please add some text.', res);
         } else {

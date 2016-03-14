@@ -1,3 +1,4 @@
+var ContentModel = require('../models/Content');
 var PagesModel = require('../models/Pages');
 
 module.exports = Ractive.extend({
@@ -37,6 +38,22 @@ module.exports = Ractive.extend({
 					self.set('description', '');
 					self.set('error', false);
 					self.set('success', 'The page was created successfully');
+				}
+			});
+		});
+		
+		this.on('add-comment', function() {
+			var contentModel = new ContentModel();
+			var formData = new FormData();
+			formData.append('text', this.get('text'));
+			formData.append'pageId', pageId);
+			contentModel.create(formData, function(error, result) {
+				self.set('text', '');
+				if(error) {
+					self.set('error', error.error);
+				} else {
+					self.set('error', false);
+					self.set('success', 'The post is saved successfully.');
 				}
 			});
 		});

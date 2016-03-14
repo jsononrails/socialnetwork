@@ -13,6 +13,7 @@ module.exports = function(req, res, params) {
     error('You must be logged in in order to use this method.', res);
     return;
   }
+
   switch(req.method) {
     case 'GET': 
 	  getDatabaseConnection(function(db) {
