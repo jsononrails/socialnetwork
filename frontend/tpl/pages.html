@@ -17,6 +17,12 @@
 		<textarea value="{{text}}"></textarea>
 		<input type="button" value="Post" on-click="add-comment"/>
 	</form>
+	{{#each comments:index}}
+		<div class="content-item">
+			<h2>{{comments[index].userName}}</h2>
+			<p>{{comments[index].text}}</p>
+		</div>
+	{{/each}}
 </div>
 <hr />
 {{else}}

@@ -28,6 +28,24 @@ module.exports = function(req, res, params) {
 		
 	  	var collection = db.collection('pages');
 		
+		var getComments = function(pageId, callback) {
+			var collection = db.collection('content');
+			collection.find({
+				$query: {
+					pageId: pageId
+				},
+				$orderby: {
+					date: -1
+				}
+			}).toArray(function(err, result) {
+				result.forEach(function(value, index, arr) {
+					delete arr[index].userId;
+					delete arr[index]._id;
+				});
+				callback(result);
+			});
+		}
+		
 		collection.find({
 			$query: query,
 			$orderby: {
@@ -36,11 +54,22 @@ module.exports = function(req, res, params) {
 		}).toArray(function(err, result) {
 			result.forEach(function(value, index, arr) {
 				arr[index].id = value._id;
+				delete arr[index]._id;
 				delete arr[index].userId;
 			});
-			response({
-				pages: result
-			}, res);
+			if(params.id && result.length > 0) {
+				getComments(params.id, function(comments) {
+					result[0].comments = comments;
+					response({
+						pages:result
+					}, res);
+				});
+			}
+			else {
+				response({
+					pages: result
+				}, res);
+			}
 		});
 	  });
 	break;

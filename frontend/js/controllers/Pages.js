@@ -14,16 +14,19 @@ module.exports = Ractive.extend({
 		
 		var pageId = this.get('pageId');
 		if(pageId) {
-			model.getPage(pageId, function(err, result) {
-				if(!err && result.pages.length > 0) {
-					var page = result.pages[0];
-					self.set('pageTitle', page.title);
-					self.set('pageDescription', page.description);
-				} else {
-					self.set('pageTitle', 'Missing page.');
-				}
-			});
-			return;
+			var showPage = function() {
+				model.getPage(pageId, function(err, result) {
+					if(!err && result.pages.length > 0) {
+						var page = result.pages[0];
+						self.set('pageTitle', page.title);
+						self.set('pageDescription', page.description);
+						self.set('comments', page.comments);
+					} else {
+						self.set('pageTitle', 'Missing page.');
+					}
+				});
+			}
+			showPage();
 		}
 		
 		this.on('create', function() {
@@ -46,7 +49,7 @@ module.exports = Ractive.extend({
 			var contentModel = new ContentModel();
 			var formData = new FormData();
 			formData.append('text', this.get('text'));
-			formData.append'pageId', pageId);
+			formData.append('pageId', pageId);
 			contentModel.create(formData, function(error, result) {
 				self.set('text', '');
 				if(error) {

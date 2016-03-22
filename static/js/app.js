@@ -140,16 +140,19 @@ module.exports = Ractive.extend({
 		
 		var pageId = this.get('pageId');
 		if(pageId) {
-			model.getPage(pageId, function(err, result) {
-				if(!err && result.pages.length > 0) {
-					var page = result.pages[0];
-					self.set('pageTitle', page.title);
-					self.set('pageDescription', page.description);
-				} else {
-					self.set('pageTitle', 'Missing page.');
-				}
-			});
-			return;
+			var showPage = function() {
+				model.getPage(pageId, function(err, result) {
+					if(!err && result.pages.length > 0) {
+						var page = result.pages[0];
+						self.set('pageTitle', page.title);
+						self.set('pageDescription', page.description);
+						self.set('comments', page.comments);
+					} else {
+						self.set('pageTitle', 'Missing page.');
+					}
+				});
+			}
+			showPage();
 		}
 		
 		this.on('create', function() {
@@ -172,6 +175,16 @@ module.exports = Ractive.extend({
 			var contentModel = new ContentModel();
 			var formData = new FormData();
 			formData.append('text', this.get('text'));
+			formData.append('pageId', pageId);
+			contentModel.create(formData, function(error, result) {
+				self.set('text', '');
+				if(error) {
+					self.set('error', error.error);
+				} else {
+					self.set('error', false);
+					self.set('success', 'The post is saved successfully.');
+				}
+			});
 		});
 		
 		var getPages = function() {
@@ -776,7 +789,7 @@ module.exports = {"v":1,"t":[{"t":7,"e":"header","f":[{"t":7,"e":"navigation"}]}
 },{}],22:[function(require,module,exports){
 module.exports = {"v":1,"t":[{"t":7,"e":"nav","f":[{"t":7,"e":"ul","f":[{"t":7,"e":"li","f":[{"t":7,"e":"a","v":{"click":{"n":"goto","a":"home"}},"f":["Home"]}]}," ",{"t":4,"n":50,"x":{"r":["isLogged"],"s":"!_0"},"f":[{"t":7,"e":"li","f":[{"t":7,"e":"a","v":{"click":{"n":"goto","a":"register"}},"f":["Register"]}]}," ",{"t":7,"e":"li","f":[{"t":7,"e":"a","v":{"click":{"n":"goto","a":"login"}},"f":["Login"]}]}]},{"t":4,"n":51,"f":[{"t":7,"e":"li","a":{"class":"right"},"f":[{"t":7,"e":"a","v":{"click":{"n":"goto","a":"logout"}},"f":["Logout"]}]}," ",{"t":7,"e":"li","a":{"class":"right"},"f":[{"t":7,"e":"a","v":{"click":{"n":"goto","a":"profile"}},"f":["Profile"]}]}," ",{"t":7,"e":"li","a":{"class":"right"},"f":[{"t":7,"e":"a","v":{"click":{"n":"goto","a":"find-friends"}},"f":["Find Friends"]}]}," ",{"t":7,"e":"li","a":{"class":"right"},"f":[{"t":7,"e":"a","v":{"click":{"n":"goto","a":"pages"}},"f":["Pages"]}]}],"x":{"r":["isLogged"],"s":"!_0"}}]}]}]}
 },{}],23:[function(require,module,exports){
-module.exports = {"v":1,"t":[{"t":7,"e":"header","f":[{"t":7,"e":"navigation"}]}," ",{"t":4,"n":50,"r":"pageId","f":[{"t":7,"e":"div","a":{"class":"hero"},"f":[{"t":7,"e":"h1","f":[{"t":2,"r":"pageTitle"}]}," ",{"t":7,"e":"p","f":[{"t":2,"r":"pageDescription"}]}," ",{"t":7,"e":"form","a":{"enctype":"multipart/form-data","method":"post"},"f":[{"t":7,"e":"h3","f":["Add a comment for this page"]}," ",{"t":4,"n":50,"x":{"r":["error"],"s":"_0&&_0!=\"\""},"f":[{"t":7,"e":"div","a":{"class":"error"},"f":[{"t":2,"r":"error"}]}]}," ",{"t":4,"n":50,"x":{"r":["success"],"s":"_0&&_0!=\"\""},"f":[{"t":7,"e":"div","a":{"class":"success"},"f":[{"t":3,"r":"success"}]}]}," ",{"t":7,"e":"label","a":{"for":"text"},"f":["Text"]}," ",{"t":7,"e":"textarea","a":{"value":[{"t":2,"r":"text"}]}}," ",{"t":7,"e":"input","a":{"type":"button","value":"Post"},"v":{"click":"add-comment"}}]}]}," ",{"t":7,"e":"hr"}]},{"t":4,"n":51,"f":[{"t":7,"e":"div","a":{"class":"hero"},"f":[{"t":7,"e":"form","a":{"enctype":"multipart/form-data","method":"post"},"f":[{"t":7,"e":"h3","f":["Add a new page"]}," ",{"t":4,"n":50,"x":{"r":["error"],"s":"_0&&_0!=\"\""},"f":[{"t":7,"e":"div","a":{"class":"error"},"f":[{"t":2,"r":"error"}]}]}," ",{"t":4,"n":50,"x":{"r":["success"],"s":"_0&&_0!=\"\""},"f":[{"t":7,"e":"div","a":{"class":"success"},"f":[{"t":3,"r":"success"}]}]}," ",{"t":7,"e":"label","f":["Title"]}," ",{"t":7,"e":"textarea","a":{"value":[{"t":2,"r":"title"}]}}," ",{"t":7,"e":"label","f":["Description"]}," ",{"t":7,"e":"textarea","a":{"value":[{"t":2,"r":"description"}]}}," ",{"t":7,"e":"input","a":{"type":"button","value":"Create"},"v":{"click":"create"}}]}]}," ",{"t":4,"n":52,"r":"pages","i":"index","f":[{"t":7,"e":"div","a":{"class":"content-item"},"f":[{"t":7,"e":"h2","f":[{"t":2,"rx":{"r":"pages","m":[{"t":30,"n":"index"},"title"]}}]}," ",{"t":7,"e":"p","f":[{"t":7,"e":"small","f":["Created by ",{"t":2,"rx":{"r":"pages","m":[{"t":30,"n":"index"},"userName"]}}]}]}," ",{"t":7,"e":"p","f":[{"t":2,"rx":{"r":"pages","m":[{"t":30,"n":"index"},"description"]}}]}," ",{"t":7,"e":"p","f":[{"t":7,"e":"a","a":{"href":["/pages/",{"t":2,"rx":{"r":"pages","m":[{"t":30,"n":"index"},"id"]}}],"class":"button"},"f":["Visit the page"]}]}]}]}],"r":"pageId"},{"t":7,"e":"appfooter"}]}
+module.exports = {"v":1,"t":[{"t":7,"e":"header","f":[{"t":7,"e":"navigation"}]}," ",{"t":4,"n":50,"r":"pageId","f":[{"t":7,"e":"div","a":{"class":"hero"},"f":[{"t":7,"e":"h1","f":[{"t":2,"r":"pageTitle"}]}," ",{"t":7,"e":"p","f":[{"t":2,"r":"pageDescription"}]}," ",{"t":7,"e":"form","a":{"enctype":"multipart/form-data","method":"post"},"f":[{"t":7,"e":"h3","f":["Add a comment for this page"]}," ",{"t":4,"n":50,"x":{"r":["error"],"s":"_0&&_0!=\"\""},"f":[{"t":7,"e":"div","a":{"class":"error"},"f":[{"t":2,"r":"error"}]}]}," ",{"t":4,"n":50,"x":{"r":["success"],"s":"_0&&_0!=\"\""},"f":[{"t":7,"e":"div","a":{"class":"success"},"f":[{"t":3,"r":"success"}]}]}," ",{"t":7,"e":"label","a":{"for":"text"},"f":["Text"]}," ",{"t":7,"e":"textarea","a":{"value":[{"t":2,"r":"text"}]}}," ",{"t":7,"e":"input","a":{"type":"button","value":"Post"},"v":{"click":"add-comment"}}]}," ",{"t":4,"n":52,"r":"comments","i":"index","f":[{"t":7,"e":"div","a":{"class":"content-item"},"f":[{"t":7,"e":"h2","f":[{"t":2,"rx":{"r":"comments","m":[{"t":30,"n":"index"},"userName"]}}]}," ",{"t":7,"e":"p","f":[{"t":2,"rx":{"r":"comments","m":[{"t":30,"n":"index"},"text"]}}]}]}]}]}," ",{"t":7,"e":"hr"}]},{"t":4,"n":51,"f":[{"t":7,"e":"div","a":{"class":"hero"},"f":[{"t":7,"e":"form","a":{"enctype":"multipart/form-data","method":"post"},"f":[{"t":7,"e":"h3","f":["Add a new page"]}," ",{"t":4,"n":50,"x":{"r":["error"],"s":"_0&&_0!=\"\""},"f":[{"t":7,"e":"div","a":{"class":"error"},"f":[{"t":2,"r":"error"}]}]}," ",{"t":4,"n":50,"x":{"r":["success"],"s":"_0&&_0!=\"\""},"f":[{"t":7,"e":"div","a":{"class":"success"},"f":[{"t":3,"r":"success"}]}]}," ",{"t":7,"e":"label","f":["Title"]}," ",{"t":7,"e":"textarea","a":{"value":[{"t":2,"r":"title"}]}}," ",{"t":7,"e":"label","f":["Description"]}," ",{"t":7,"e":"textarea","a":{"value":[{"t":2,"r":"description"}]}}," ",{"t":7,"e":"input","a":{"type":"button","value":"Create"},"v":{"click":"create"}}]}]}," ",{"t":4,"n":52,"r":"pages","i":"index","f":[{"t":7,"e":"div","a":{"class":"content-item"},"f":[{"t":7,"e":"h2","f":[{"t":2,"rx":{"r":"pages","m":[{"t":30,"n":"index"},"title"]}}]}," ",{"t":7,"e":"p","f":[{"t":7,"e":"small","f":["Created by ",{"t":2,"rx":{"r":"pages","m":[{"t":30,"n":"index"},"userName"]}}]}]}," ",{"t":7,"e":"p","f":[{"t":2,"rx":{"r":"pages","m":[{"t":30,"n":"index"},"description"]}}]}," ",{"t":7,"e":"p","f":[{"t":7,"e":"a","a":{"href":["/pages/",{"t":2,"rx":{"r":"pages","m":[{"t":30,"n":"index"},"id"]}}],"class":"button"},"f":["Visit the page"]}]}]}]}],"r":"pageId"},{"t":7,"e":"appfooter"}]}
 },{}],24:[function(require,module,exports){
 module.exports = {"v":1,"t":[{"t":7,"e":"header","f":[{"t":7,"e":"navigation"}]}," ",{"t":7,"e":"div","a":{"class":"hero"},"f":[{"t":7,"e":"h1","f":["Profile"]}]}," ",{"t":7,"e":"form","f":[{"t":4,"n":50,"x":{"r":["error"],"s":"_0&&_0!=\"\""},"f":[{"t":7,"e":"div","a":{"class":"error"},"f":[{"t":3,"r":"error"}]}]}," ",{"t":4,"n":50,"x":{"r":["success"],"s":"_0&&_0!=\"\""},"f":[{"t":7,"e":"div","a":{"class":"success"},"f":[{"t":3,"r":"success"}]}]}," ",{"t":7,"e":"label","a":{"for":"first-name"},"f":["First name"]}," ",{"t":7,"e":"input","a":{"type":"text","id":"first-name","value":[{"t":2,"r":"firstName"}]}}," ",{"t":7,"e":"label","a":{"for":"last-name"},"f":["Last name"]}," ",{"t":7,"e":"input","a":{"type":"text","id":"last-name","value":[{"t":2,"r":"lastName"}]}}," ",{"t":7,"e":"label","a":{"for":"password"},"f":["Change password"]}," ",{"t":7,"e":"input","a":{"type":"password","id":"password","value":[{"t":2,"r":"password"}]}}," ",{"t":7,"e":"input","a":{"type":"button","value":"update"},"v":{"click":"updateProfile"}}," ",{"t":7,"e":"input","a":{"type":"button","value":"delete account","class":"right attention"},"v":{"click":"deleteProfile"}}]}," ",{"t":4,"n":50,"x":{"r":["friends.length"],"s":"_0>0"},"f":[{"t":7,"e":"div","a":{"class":"hero"},"f":[{"t":7,"e":"h1","f":["Friends"]}]}," ",{"t":7,"e":"div","a":{"class":"friends-list"},"f":[{"t":4,"n":50,"x":{"r":["friends.length"],"s":"_0==1"},"f":[{"t":7,"e":"div","a":{"class":"friend-list-item"},"f":[{"t":7,"e":"h2","f":[{"t":2,"r":"friends.0.firstName"}," ",{"t":2,"r":"friends.0.lastName"}]}]}]},{"t":4,"n":51,"f":[{"t":4,"n":52,"r":"friends","i":"index","f":[{"t":7,"e":"div","a":{"class":"friend-list-item"},"f":[{"t":7,"e":"h2","f":[{"t":2,"rx":{"r":"friends","m":[{"t":30,"n":"index"},"firstName"]}}," ",{"t":2,"rx":{"r":"friends","m":[{"t":30,"n":"index"},"lastName"]}}]}]}]}],"x":{"r":["friends.length"],"s":"_0==1"}}]}]},{"t":7,"e":"appfooter"}]}
 },{}],25:[function(require,module,exports){
