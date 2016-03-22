@@ -61,6 +61,10 @@ module.exports = function(req, res) {
 			data.eventDate = formData.eventDate;
 		}
 		
+		if(formData.taggedFriends) {
+			data.taggedFriends = JSON.parse(formData.taggedFriends);
+		}
+		
         if(!data.text || data.text === '') {
           error('Please add some text.', res);
         } else {

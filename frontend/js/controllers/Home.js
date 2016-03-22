@@ -1,4 +1,6 @@
 var ContentModel = require('../models/Content');
+var Friends = require('../models/Friends');
+
 module.exports = Ractive.extend({
   template: require('../../tpl/home'),
   components: {
@@ -11,6 +13,13 @@ module.exports = Ractive.extend({
   onrender: function() {
     if(userModel.isLogged()) {
       var model = new ContentModel();
+	  var friends = new Friends();
+	
+	  friends.fetch(function(err, result) {
+	  	if(err) { throw err; }
+		self.set('friends', result.friends);
+	  });
+	
       var self = this;
 this.on('post', function() {
   var files = this.find('input[type="file"]').files;
@@ -22,6 +31,7 @@ this.on('post', function() {
     }
   }
   formData.append('text', this.get('text'));
+  formData.append('taggedFriends', JSON.stringify(this.get('taggedFriends')));
   model.create(formData, function(error, result) {
     self.set('text', '');
     if(error) {

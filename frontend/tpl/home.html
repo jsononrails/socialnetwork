@@ -13,6 +13,13 @@
       {{/if}}
       <label for="text">Text</label>
       <textarea value="{{text}}"></textarea>
+	  {{#if friends.length > 0}}
+	  	<p>Tag friends:
+			{{#each friends:index}}
+				<input type="checkbox" name="{{taggedFriends}}" value="{{friends[index].id}}" />{{friends[index].firstName}} {{friends[index].lastName}} 
+			{{/each}}
+		</p>
+	  {{/if}}
       <input type="file" name="file" />
       <input type="button" value="Post" on-click="post" />
     </form>
