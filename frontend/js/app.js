@@ -58,6 +58,19 @@ window.onload = function() {
         Router.navigate('login');
       }    
     })
+	.add('pages/:id/:events', function(params) {
+		if(userModel.isLogged()) {
+			var p = new Pages({
+				data: {
+					pageId: params.id,
+					showEvents: true
+				}
+			});
+			showPage(p);
+		} else {
+			Router.navigate('login');
+		}
+	})
 	.add('pages/:id', function(params) {
 		if(userModel.isLogged()) {
 			var p = new Pages({

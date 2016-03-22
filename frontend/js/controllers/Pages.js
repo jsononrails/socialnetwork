@@ -21,6 +21,7 @@ module.exports = Ractive.extend({
 						self.set('pageTitle', page.title);
 						self.set('pageDescription', page.description);
 						self.set('comments', page.comments);
+						self.set('events', page.events);
 					} else {
 						self.set('pageTitle', 'Missing page.');
 					}
@@ -57,6 +58,25 @@ module.exports = Ractive.extend({
 				} else {
 					self.set('error', false);
 					self.set('success', 'The post is saved successfully.');
+				}
+			});
+		});
+		
+		this.on('add-event', function() {
+			var contentModel = new ContentModel();
+			var formData = new FormData();
+			formData.append('text', this.get('text'));
+			formData.append('eventDate', this.get('date'));
+			formData.append('pageId', pageId);
+			contentModel.create(formData, function(error, result) {
+				self.set('text', '');
+				self.set('eventDate', '');
+				self.set('pageId', '');
+				if(error) {
+					self.set('error', error.error);
+				} else {
+					self.set('error', false);
+					self.set('success', 'The event is saved successfully.');
 				}
 			});
 		});

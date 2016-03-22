@@ -57,6 +57,10 @@ module.exports = function(req, res) {
 			data.pageId = formData.pageId;
 		}
 		
+		if(formData.eventDate) {
+			data.eventDate = formData.eventDate;
+		}
+		
         if(!data.text || data.text === '') {
           error('Please add some text.', res);
         } else {

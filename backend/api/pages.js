@@ -28,7 +28,7 @@ module.exports = function(req, res, params) {
 		
 	  	var collection = db.collection('pages');
 		
-		var getComments = function(pageId, callback) {
+		var getPageItems = function(pageId, callback) {
 			var collection = db.collection('content');
 			collection.find({
 				$query: {
@@ -38,11 +38,22 @@ module.exports = function(req, res, params) {
 					date: -1
 				}
 			}).toArray(function(err, result) {
+				var comments = [];
+				var events = [];
 				result.forEach(function(value, index, arr) {
-					delete arr[index].userId;
-					delete arr[index]._id;
+					delete value.userId;
+					delete value._id;
+					if(value.eventDate) {
+						events.push(value);
+					} else {
+						comments.push(value);
+					}
+
 				});
-				callback(result);
+				events.sort(function(a, b) {
+					return a.eventDate > b.eventDate;
+				});
+				callback(comments, events);
 			});
 		}
 		
@@ -58,8 +69,9 @@ module.exports = function(req, res, params) {
 				delete arr[index].userId;
 			});
 			if(params.id && result.length > 0) {
-				getComments(params.id, function(comments) {
+				getPageItems(params.id, function(comments, events) {
 					result[0].comments = comments;
+					result[0].events = events;
 					response({
 						pages:result
 					}, res);
