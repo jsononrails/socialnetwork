@@ -20,6 +20,7 @@
 			{{/each}}
 		</p>
 	  {{/if}}
+	
       <input type="file" name="file" />
       <input type="button" value="Post" on-click="post" />
     </form>
@@ -27,11 +28,24 @@
       <div class="content-item">
         <h2>{{posts[index].userName}}</h2>
         {{posts[index].text}}
-        {{#if posts[index].file}}
-        <br /><br />
-        <img src="/static/uploads/{{posts[index].file}}" />
+		{{#if posts[index].taggedFriends.length > 0}}
+			<p>
+				<small>
+					Tagged: {{posts[index].taggedFriends.join(', ')}}
+				</small>
+			</p>
+		{{/if}}
+
+        {{#if !posts[index].ownPost}}
+		<p><input type="button" value="Share" on-click="share:{{posts[index].id}}" /></p>
+		{{/if}}
+
+		{{#if posts[index].file}}
+        	<br /><br />
+        	<img src="/static/uploads/{{posts[index].file}}" />
         {{/if}}
-      </div>
+      
+		</div>
     {{/each}}
   {{else}}
     <h1>Gimble Lock</h1>
