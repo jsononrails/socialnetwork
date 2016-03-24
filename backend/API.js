@@ -7,6 +7,7 @@ Router
 .add('api/friends/find', require('./api/friends-find'))
 .add('api/friends/add', require('./api/friends-add'))
 .add('api/friends', require('./api/friends'))
+.add('api/content/share', require('./api/content-share'))
 .add('api/content', require('./api/content'))
 .add('api/pages/:id', require('./api/pages'))
 .add('api/pages', require('./api/pages'))

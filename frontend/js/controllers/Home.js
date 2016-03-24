@@ -44,6 +44,12 @@ this.on('post', function() {
   });
 });
 
+this.on('share', function(e, id) {
+	var formData = new FormData();
+	formData.append('postId', id);
+	model.sharePost(formData, getPosts);
+});
+
       var getPosts = function() {
         model.fetch(function(err, result) {
           if(!err) {
