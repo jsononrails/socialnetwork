@@ -28,17 +28,11 @@
     <h1>Friends</h1>
   </div>
   <div class="friends-list">
-	{{#if friends.length == 1}}
-	  	<div class="friend-list-item">
-          <h2>{{friends[0].firstName}} {{friends[0].lastName}}</h2>
-        </div>
-	{{else}}
-      {{#each friends:index}}
-        <div class="friend-list-item">
-          <h2>{{friends[index].firstName}} {{friends[index].lastName}}</h2>
-        </div>
-      {{/each}}
-    {{/if}}
+    {{#each friends:index}}
+      <div class="friend-list-item">
+        <h2>{{friends[index].firstName}} {{friends[index].lastName}}</h2>
+      </div>
+    {{/each}}
   </div>
 {{/if}}
 <appfooter />

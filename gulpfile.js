@@ -35,7 +35,7 @@ gulp.task('watchers', function() {
 var browserify = require('gulp-browserify');
 var uglify = require('gulp-uglify');
 
-gulp.task('js', function() {
+gulp.task('js', ['templates'], function() {
   return gulp.src(['./frontend/js/app.js'])
   .pipe(plumber({
     errorHandler: onError

@@ -19,12 +19,24 @@ a {
   color: @colorbrand;
   cursor: pointer;
 }
+a.button {
+  text-decoration: none;
+  .green-button();
+}
 hr {
   border-top: 0.1em solid @colorlight;
   border-bottom: none;
 }
 .right {
   float: right;
+}
+.cf::after {
+  clear: both;
+  display: table;
+  content: " ";
+}
+.m-right {
+  margin: 0 1em 0 0;
 }
 
 .box-sizing(@type: border-box) {

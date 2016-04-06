@@ -1,18 +1,14 @@
-// backend/api/helpers.js
-var MongoClient = require('mongodb').MongoClient;
-var querystring = require('querystring');
-var database;
-
 var response = function(result, res) {
   res.writeHead(200, {'Content-Type': 'application/json'});
   res.end(JSON.stringify(result) + '\n');
 };
-
 var error = function(message, res) {
   res.writeHead(500, {'Content-Type': 'application/json'});
   res.end(JSON.stringify({error: message}) + '\n');
 };
 
+var MongoClient = require('mongodb').MongoClient;
+var database;
 var getDatabaseConnection = function(callback) {
   if(database) {
     callback(database);
@@ -28,6 +24,7 @@ var getDatabaseConnection = function(callback) {
   }
 };
 
+var querystring = require('querystring');
 var processPOSTRequest = function(req, callback) {
   var body = '';
   req.on('data', function (data) {
@@ -37,12 +34,10 @@ var processPOSTRequest = function(req, callback) {
     callback(querystring.parse(body));
   });
 };
-
 var validEmail = function(value) {
   var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
   return re.test(value);
 };
-
 var getCurrentUser = function(callback, req, res) {
   getDatabaseConnection(function(db) {
     var collection = db.collection('users');
@@ -59,10 +54,10 @@ var getCurrentUser = function(callback, req, res) {
 };
 
 module.exports = {
-	response: response,
-	error: error,
-	getDatabaseConnection: getDatabaseConnection,
-	processPOSTRequest: processPOSTRequest,
-	validEmail: validEmail,
-	getCurrentUser: getCurrentUser
+  response: response,
+  error: error,
+  getDatabaseConnection: getDatabaseConnection,
+  processPOSTRequest: processPOSTRequest,
+  validEmail: validEmail,
+  getCurrentUser: getCurrentUser
 };

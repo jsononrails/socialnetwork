@@ -58,39 +58,39 @@ window.onload = function() {
         Router.navigate('login');
       }    
     })
-	.add('pages/:id/:events', function(params) {
-		if(userModel.isLogged()) {
-			var p = new Pages({
-				data: {
-					pageId: params.id,
-					showEvents: true
-				}
-			});
-			showPage(p);
-		} else {
-			Router.navigate('login');
-		}
-	})
-	.add('pages/:id', function(params) {
-		if(userModel.isLogged()) {
-			var p = new Pages({
-				data: {
-					pageId: params.id
-				}
-			});
-			showPage(p);
-		} else {
-			Router.navigate('login');
-		}
-	})
-	.add('pages', function() {
-		if(userModel.isLogged()) {
-			var p = new Pages();
-			showPage(p);
-		} else {
-			Router.navigate('login');
-		}
-	})
+    .add('pages/:id/:events', function(params) {
+      if(userModel.isLogged()) {
+        var p = new Pages({ 
+          data: {
+            pageId: params.id,
+            showEvents: !!params.events
+          }
+        });
+        showPage(p);
+      } else {
+        Router.navigate('login');
+      }
+    })
+    .add('pages/:id', function(params) {
+      if(userModel.isLogged()) {
+        var p = new Pages({ 
+          data: {
+            pageId: params.id
+          }
+        });
+        showPage(p);
+      } else {
+        Router.navigate('login');
+      }
+    })
+    .add('pages', function() {
+      if(userModel.isLogged()) {
+        var p = new Pages();
+        showPage(p);
+      } else {
+        Router.navigate('login');
+      }    
+    })
     .add(function() {
       Router.navigate('home');
     })
