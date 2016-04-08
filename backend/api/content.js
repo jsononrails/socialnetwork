@@ -76,7 +76,7 @@ module.exports = function(req, res) {
       }, req, res);
     break;
     case 'POST':
-      var uploadDir = __dirname + '/../static/uploads/';
+      var uploadDir = __dirname + '/../../static/uploads/';
       var formidable = require('formidable');
       var form = new formidable.IncomingForm();
       form.multiples = true;
